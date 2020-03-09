@@ -5,9 +5,24 @@ const bodyParser = require('body-parser');
 const app = express();
 const admin = require('./routes/admin');
 const path = require('path'); // manipular pastas e diretorios
-//const mongoose = require('mongoose');
+const mongoose = require('mongoose');
+const session = require("express-session");
+const flash = require("connect-flash");
 
 //Configurações
+    // Sessão
+        app.use(session({
+            secret: "siteneidaunifei", // ele cria uma sessão
+            resave: true,
+            saveUninitialized: true
+        }));
+        app.use(flash());
+    // Middleware
+        app.use((req,res,next)=>{
+            res.locals.success_msg = req.flash("success_msg");
+            res.locals.error_msg = req.flash("error_msg");
+            next();
+        });
     //Body Parser
         app.use(bodyParser.urlencoded({extended: true}));
         app.use(bodyParser.json());
@@ -15,6 +30,11 @@ const path = require('path'); // manipular pastas e diretorios
         app.engine('handlebars', handlebars({defaultLayout: 'main'}));
         app.set('view engine', 'handlebars');
     //Mongoose
+        mongoose.connect('mongodb://localhost/nei').then(() => {
+            console.log("Conectado com sucesso");
+        }).catch((erro) => {
+            console.log("Erro ao se conectar: "+erro);
+        });
         //Em breve
     
     //Public
