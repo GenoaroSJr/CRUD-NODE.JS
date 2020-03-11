@@ -12,19 +12,28 @@ require("./models/Postagem");
 const Postagem = mongoose.model("postagens");
 require("./models/Categoria");
 const Categoria = mongoose.model("categorias");
+const usuarios = require("./routes/usuario");
+const passport = require("passport");
+require("./config/auth")(passport);
 
 //Configurações
     // Sessão
         app.use(session({
-            secret: "siteneidaunifei", // ele cria uma sessão
+            secret: "cursodenode", // ele cria uma sessão
             resave: true,
             saveUninitialized: true
         }));
+
+        app.use(passport.initialize());
+        app.use(passport.session());
+
         app.use(flash());
     // Middleware
         app.use((req,res,next)=>{
             res.locals.success_msg = req.flash("success_msg");
             res.locals.error_msg = req.flash("error_msg");
+            res.locals.error = req.flash("error");
+            res.locals.user = req.user || null;
             next();
         });
     //Body Parser
@@ -36,8 +45,8 @@ const Categoria = mongoose.model("categorias");
     //Mongoose
         mongoose.connect('mongodb://localhost/nei').then(() => {
             console.log("Conectado com sucesso");
-        }).catch((erro) => {
-            console.log("Erro ao se conectar: "+erro);
+        }).catch((err) => {
+            console.log("Erro ao se conectar: "+err);
         });
         //Em breve
     
@@ -48,8 +57,8 @@ const Categoria = mongoose.model("categorias");
     app.get('/', (req,res)=>{
         Postagem.find().populate("categoria").sort({data: 'desc'}).then((postagens)=>{
             res.render("index", {postagens: postagens});
-        }).catch((error)=>{
-            req.flash("error_msg", "Houve um erro interno!");
+        }).catch((erro)=>{
+            req.flash("error_msg", "Houve um erro interno! "+err);
             res.redirect("/404");
         })
     })
@@ -62,8 +71,8 @@ const Categoria = mongoose.model("categorias");
                 req.flash("error_msg", "Essa postagem não existe!");
                 res.redirect('/');
             }
-        }).catch((erro)=>{
-            req.flash("error_msg", "Houve um error interno!");
+        }).catch((err)=>{
+            req.flash("error_msg", "Houve um error interno! "+err);
             res.redirect("/")
         })
     })
@@ -71,8 +80,8 @@ const Categoria = mongoose.model("categorias");
     app.get("/categorias", (req,res)=>{
         Categoria.find().then((categorias)=>{
             res.render("categorias/index",{categorias: categorias});
-        }).catch((erro)=>{
-            req.flash("error_msg", "Houve um erro interno!");
+        }).catch((err)=>{
+            req.flash("error_msg", "Houve um erro interno! "+err);
             res.redirect("/");
         })
     })
@@ -82,16 +91,17 @@ const Categoria = mongoose.model("categorias");
             if(categoria){
                 Postagem.find({categoria: categoria._id}).then((postagens)=>{
                     res.render("categorias/postagens",{postagens: postagens, categoria: categoria})
-                }).catch((erro)=>{
-                    req.flash("error_msg", "Esta categoria não existe!");
+                }).catch((err )=>{
+                    req.flash("error_msg", "Esta categoria não existe! "+err);
                     res.redirect("/");
                 })
             }else{
                 req.flash("error_msg", "Esta categoria não existe!");
                 res.redirect("/");
             }
-        }).catch((erro)=>{
-            req.flash("error_msg", "Houve um erro interno!");
+        }).catch((err)=>{
+            req.flash("error_msg", "Houve um erro "+err);
+            console.log(erro)
             res.redirect("/");
         })
     })
@@ -101,6 +111,7 @@ const Categoria = mongoose.model("categorias");
     })
 
     app.use('/admin', admin); 
+    app.use("/usuarios", usuarios);
 //Outros
 const PORT = 8081; 
 app.listen(PORT, () =>{
