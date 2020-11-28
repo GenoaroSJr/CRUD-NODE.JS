@@ -1,0 +1,19 @@
+{
+  "name": "crud-2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GenoaroSJr/CRUD-NODE.JS.git"
+  },
+  "author": "GenoaroSJr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GenoaroSJr/CRUD-NODE.JS/issues"
+  },
+  "homepage": "https://github.com/GenoaroSJr/CRUD-NODE.JS#readme"
+}
